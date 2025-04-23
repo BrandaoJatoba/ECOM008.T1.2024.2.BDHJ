@@ -1,4 +1,9 @@
-# Projeto de Estruturas de Dados - Compactação, Lógica e Análise de Estruturas
+# Estruturas de Dados - ECOM008, Turma 1, 2024.2
+## Projetos - AB 2
+Professor: Márcio Ribeiro
+Universidade Federal de Alagoas - UFAL
+Instituto de Computação - IC
+16 de Abril de 2025
 
 Este repositório contém as implementações e entregas do projeto da disciplina de Estruturas de Dados.
 
