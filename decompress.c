@@ -34,7 +34,15 @@ huffman_tree* reconstruct_huffman_tree(char* tree_array, int* index){
 	// é escape?
 	if(tree_array[*index]=='\\'){
 		(*index)++;
-		new_tree->item = tree_array[*index];
+		
+		char* c = malloc(sizeof(char));
+		if (c == NULL) {
+			printf("Erro de alocação para item do nó.\n");
+			free(new_tree);
+			return NULL;
+		}
+		*c = tree_array[*index];
+		new_tree->item = c;
 		(*index)++;
 		new_tree->left = NULL;
 		new_tree->right= NULL;
@@ -42,7 +50,14 @@ huffman_tree* reconstruct_huffman_tree(char* tree_array, int* index){
 	}
 	// é nó interno?
 	else if(tree_array[*index]=='*'){
-		new_tree->item = tree_array[*index];
+		char* c = malloc(sizeof(char));
+		if (c == NULL) {
+			printf("Erro de alocação para item do nó.\n");
+			free(new_tree);
+			return NULL;
+		}
+		*c = tree_array[*index];
+		new_tree->item = c;
 		(*index)++;
 		new_tree->left = reconstruct_huffman_tree(tree_array, index);
 		new_tree->right = reconstruct_huffman_tree(tree_array, index);
@@ -50,12 +65,27 @@ huffman_tree* reconstruct_huffman_tree(char* tree_array, int* index){
 	}
 	// é folha!
 	else {
-		new_tree->item = tree_array[*index];
+		char* c = malloc(sizeof(char));
+		if (c == NULL) {
+			printf("Erro de alocação para item do nó.\n");
+			free(new_tree);
+			return NULL;
+		}
+		*c = tree_array[*index];
+		new_tree->item = c;
 		(*index)++;
 		new_tree->left = NULL;
 		new_tree->right = NULL;
 		return new_tree;}
 
+}
+
+void free_huffman_tree(huffman_tree* root) {
+    if (root == NULL) return;
+    free_huffman_tree(root->left);
+    free_huffman_tree(root->right);
+    free(root->item); // libera o item (char*)
+    free(root);       // libera o nó
 }
 
 int decompress(const char* file_name){
@@ -122,7 +152,7 @@ int decompress(const char* file_name){
 	#endif
 
 	fseek(arquivo, 2, SEEK_SET);
-	char* tree = malloc(tree_size*sizeof(char));
+	char* tree = malloc(tree_size * sizeof(char));
 	
 	#ifdef DEBUG
 		printf("\n\n");
@@ -144,7 +174,7 @@ int decompress(const char* file_name){
 	#endif
 	
 	int index = 0;
-	huffman_tree* ht = (huffman_tree*) reconstruct_huffman_tree(tree, &index);
+	huffman_tree* ht = reconstruct_huffman_tree(tree, &index);
 	
 	#ifdef DEBUG
 		printf("\nReconstruction Successful.\n");
@@ -184,7 +214,7 @@ int decompress(const char* file_name){
     >> ESCREVER O NOVO ARQUIVO DESCOMPACTADO.
 	>> liberar memória da árvore de huffman. criar função auxiliar.
     */
-
+	free_huffman_tree(ht);
 	fclose(arquivo);
     return 0;
 }
