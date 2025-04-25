@@ -65,7 +65,7 @@ int decompress(const char* file_name);
  * @return reconstructed_huffman_tree* Ponteiro para a raiz da árvore reconstruída.
  *         Retorna NULL em caso de erro de alocação de memória.
  */
-reconstructed_huffman_tree* reconstruct_huffman_tree(char* tree_array, int* index);
+reconstructed_huffman_tree* reconstruct_huffman_tree(unsigned char* tree_array, int* index);
 
 /**
  * @brief Obtém o nome do arquivo descompactado a partir de um nome de arquivo compactado.

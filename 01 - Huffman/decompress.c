@@ -217,7 +217,7 @@ int decompress(const char* file_name){
 	#ifdef DEBUG
 	printf("Tamanho do arquivo: %ld bytes\n", file_size);
 	printf("Efetivamente, vamos ler %d bytes para reconstruir o arquivo.\n", (file_size-(tree_size+2)));
-	printf("Posicao Inicial: Byte #%d.\nPosicao final: Byte #%d.\n", compress_data_start, final_position);
+	printf("Posicao Inicial: Byte #%d.\nPosicao final: Byte #%d.\n", compress_data_start, file_size);
 	printf("Lembre-se que no ultimo byte, os ultimos %d bits serao desconsiderados.\n", trash_size);
 	printf("Total de bits = %d. Total de bits validos = %d\n\n\n", total_of_bits, total_of_valid_bits);
 	#endif
