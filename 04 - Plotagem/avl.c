@@ -14,7 +14,7 @@ int rmax(int a, int b) {
 
 int h(avl_tree *bt)
 {
-    if (bt == NULL) {
+    if (is_avl_empty(bt)) {
         return -1;
     } else {
         return 1 + rmax(h(bt->left), h(bt->right));
@@ -23,7 +23,7 @@ int h(avl_tree *bt)
 
 int balance_factor(avl_tree *bt)
 {
-    if (bt == NULL) {
+    if (is_avl_empty(bt)) {
         return 0;
     } else if (bt->left == NULL && bt->right != NULL) {
         return -(1 + bt->right->h);
@@ -68,7 +68,7 @@ avl_tree* rotate_right(avl_tree *bt)
 
 avl_tree* avl_add(avl_tree *bt, int item, int *comparisons)
 {
-    if (bt == NULL) {
+    if (is_avl_empty(bt)) {
         return create_avl_tree(item, NULL, NULL);
     }
 
@@ -116,7 +116,7 @@ avl_tree* create_avl_tree(int item, avl_tree* left, avl_tree* right)
 
 avl_tree* avl_search(avl_tree* bt, int item, int *comparisons)
 {
-    if (bt == NULL) return NULL;
+    if (is_avl_empty(bt)) return NULL;
 
     (*comparisons)++;
     if (bt->item == item) return bt;
@@ -136,7 +136,7 @@ int is_avl_empty(avl_tree* bt)
 
 
 void avl_print_pre_order(avl_tree* bt) {
-    if (bt == NULL) {
+    if (is_avl_empty(bt)) {
         printf(" ()");
         return;
     }
@@ -149,13 +149,13 @@ void avl_print_pre_order(avl_tree* bt) {
 }
 
 avl_tree* avl_find_min(avl_tree* bt) {
-	if (bt == NULL || bt->left == NULL)
+	if (is_avl_empty(bt) || bt->left == NULL)
 		return bt;
 	return avl_find_min(bt->left);
 }
 
 avl_tree* avl_remove_node(avl_tree* bt, int item) {
-    if (bt == NULL) return NULL;
+    if (is_avl_empty(bt)) return NULL;
 
     if (item < bt->item) {
         bt->left = avl_remove_node(bt->left, item);

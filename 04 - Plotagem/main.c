@@ -33,13 +33,18 @@ int main()
     avl_print_pre_order(root);
     printf("\n");
 
-    root = avl_add(root, 42, &AVL_comparations);
-    printf("Comparações ao inserir 42: %d\n", AVL_comparations);
+    for(int i = 2; i<100;i++){
+        if(i==66) continue;
+        AVL_comparations = 0;
+        root = avl_add(root, i, &AVL_comparations);
+        printf("Comparações ao inserir %d: %d\n", i, AVL_comparations);
+            AVL_comparations = 0;
+        avl_search(root, 42, &AVL_comparations);
+        printf("Comparações ao buscar %d: %d\n", i, AVL_comparations);  
+    }
 
-    AVL_comparations = 0;
-    avl_search(root, 42, &AVL_comparations);
-    printf("Comparações ao buscar 42: %d\n", AVL_comparations);
-    
+    avl_print_pre_order(root);
+
     
     return 0;
 
