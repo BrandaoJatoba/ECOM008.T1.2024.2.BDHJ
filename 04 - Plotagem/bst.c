@@ -11,22 +11,31 @@ binary_tree* create_empty_binary_tree()
 binary_tree* create_binary_tree(int item, binary_tree* left, binary_tree* right)
 {
 	binary_tree* arvore = (binary_tree*)malloc(sizeof(binary_tree));
+	if(arvore == NULL){
+		printf("Erro ao alocar memória para BST.");
+		return NULL;
+	}
 	arvore->item = item;
 	arvore->left = left;
 	arvore->right = right;
 	return arvore;
 }
 
-binary_tree* search(binary_tree* bt, int item)
+binary_tree* search(binary_tree* bt, int item, int *comparisons)
 {
-	if ((bt == NULL) || (bt->item == item)) {
+	if(bt == NULL) return NULL;
+
+	(*comparisons)++;
+	if ((bt->item == item)) {
 		return bt;
 	}
-	else if (bt->item > item) {
-		return search(bt->left, item);
+
+	(*comparisons)++;
+	if (bt->item > item) {
+		return search(bt->left, item, comparisons);
 	}
-	else if (bt->item < item) {
-		return search(bt->right, item);
+	else {
+		return search(bt->right, item, comparisons);
 	}
 }
 
@@ -37,9 +46,6 @@ int is_empty(binary_tree* bt)
 
 
 void print_pre_order(binary_tree* bt) {
-    //modelo n? "( 15 () () )"
-    //   ( 11  ( 2  ()  ( 4  ()  () ) )  ( 13  ()  ( 15  ()  () ) ) ) "
-    //   ( 11  ( 2  ()  ( 4  ()  () ) )  ( 13  ()  ( 15  ()  () ) ) ) "
     if (bt == NULL) {
         printf(" ()");
         return;
@@ -52,16 +58,19 @@ void print_pre_order(binary_tree* bt) {
     printf(" )");
 }
 
-binary_tree* add(binary_tree* bt, int item)
+binary_tree* add(binary_tree* bt, int item, int *comparisons)
 {
+	
 	if (bt == NULL) {
-		bt = create_binary_tree(item, NULL, NULL);
+		return create_binary_tree(item, NULL, NULL);
 	}
-	else if (bt->item > item) {
-		bt->left = add(bt->left, item);
+
+	(*comparisons)++;
+	if (bt->item > item) {
+		bt->left = add(bt->left, item,comparisons);
 	}
-	else if (bt->item <= item) {
-		bt->right = add(bt->right, item);
+	else {
+		bt->right = add(bt->right, item, comparisons);
 	}
 	return bt;
 }
