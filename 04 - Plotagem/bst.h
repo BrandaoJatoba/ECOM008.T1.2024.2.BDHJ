@@ -10,6 +10,7 @@ typedef struct binary_tree {
 binary_tree* add(binary_tree *bt, int item, int *comparisons);
 binary_tree* create_binary_tree(int item, binary_tree *left, binary_tree *right);
 binary_tree* create_empty_binary_tree();
+void free_binary_tree(binary_tree* root);
 binary_tree* find_min(binary_tree* bt);
 int is_empty(binary_tree *bt);
 void print_in_order(binary_tree *bt);

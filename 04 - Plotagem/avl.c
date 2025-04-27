@@ -8,6 +8,13 @@ avl_tree* create_empty_avl_tree()
 	return NULL;
 }
 
+void free_avl_tree(avl_tree* root) {
+    if (root == NULL) return;
+    free_avl_tree(root->left);
+    free_avl_tree(root->right);
+    free(root);
+}
+
 int rmax(int a, int b) {
     return (a > b) ? a : b;
 }

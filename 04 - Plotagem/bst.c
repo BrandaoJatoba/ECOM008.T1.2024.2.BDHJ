@@ -8,6 +8,13 @@ binary_tree* create_empty_binary_tree()
 	return NULL;
 }
 
+void free_binary_tree(binary_tree* root) {
+    if (root == NULL) return;
+    free_binary_tree(root->left);
+    free_binary_tree(root->right);
+    free(root);
+}
+
 binary_tree* create_binary_tree(int item, binary_tree* left, binary_tree* right)
 {
 	binary_tree* arvore = (binary_tree*)malloc(sizeof(binary_tree));

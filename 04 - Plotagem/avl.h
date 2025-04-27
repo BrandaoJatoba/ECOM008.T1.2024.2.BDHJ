@@ -13,6 +13,7 @@ int balance_factor(avl_tree *bt);
 avl_tree* create_avl_tree(int item, avl_tree *left, avl_tree *right);
 avl_tree* create_empty_avl_tree();
 avl_tree* avl_find_min(avl_tree* bt);
+void free_avl_tree(avl_tree* root);
 int h(avl_tree *bt);
 int is_avl_empty(avl_tree *bt);
 int rmax(int a, int b);
