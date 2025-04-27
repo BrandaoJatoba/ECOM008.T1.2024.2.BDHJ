@@ -5,7 +5,7 @@
 #include "bst.h"
 #include "avl.h"
 
-#define MAX_NUMBER 1000
+#define MAX_NUMBER 100000
 
 typedef struct Records{
     int data[3][MAX_NUMBER];
@@ -109,27 +109,52 @@ void write_data_to_file(char* suffix, Records* records){
     printf("CSV file '%s' written successfully.\n", filename);
 }
 
-int main()
-{
-	
+int* generate_linear_numbers(int max_range){
+    int* r_numbers = malloc(max_range * sizeof(int));
+    for(int i = 0; i < max_range; i++){
+        r_numbers[i] = i;
+    }
+    return r_numbers;
+}
+
+int* generate_random_numbers(int max_range){
     srand(time(NULL));
-    int* r_numbers = malloc(MAX_NUMBER * sizeof(int));
+    int* r_numbers = malloc(max_range * sizeof(int));
     int random_number;
-    for(int i = 0; i < MAX_NUMBER; i++){
-        random_number = (rand()%MAX_NUMBER) + 1;
+    for(int i = 0; i < max_range; i++){
+        random_number = (rand()%max_range) + 1;
         r_numbers[i] = random_number;
     }
+    return r_numbers;
+}
 
+int main(int argc, char *argv[]) {
+
+    int* numbers = NULL;
     avl_tree* avl = create_empty_avl_tree();
     binary_tree* bst = create_empty_binary_tree();
 
-    Records* avl_records = fill_record_avl(avl, r_numbers);
-    Records* bst_records = fill_record_bst(bst, r_numbers);
+    if (argc > 1) {
+        if (strcmp(argv[1], "-l") == 0) {
+            numbers = generate_linear_numbers(MAX_NUMBER);
+        } else if (strcmp(argv[1], "-r") == 0) {
+            numbers = generate_random_numbers(MAX_NUMBER);
+        } else {
+            printf("Argumento inválido. Use -l, -r ou nenhum argumento.\n");
+            return 1;
+        }
+    } else {
+        // Nenhum argumento passado: usa geração aleatória
+            numbers = generate_random_numbers(MAX_NUMBER);
+    }
+
+    Records* avl_records = fill_record_avl(avl, numbers);
+    Records* bst_records = fill_record_bst(bst, numbers);
     
     write_data_to_file("AVL", avl_records);
     write_data_to_file("BST", bst_records);
     
-    free(r_numbers);
+    free(numbers);
     free(avl_records);
     free(bst_records);
     free_avl_tree(avl);
