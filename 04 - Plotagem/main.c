@@ -5,7 +5,7 @@
 #include "bst.h"
 #include "avl.h"
 
-#define MAX_NUMBER 100000
+#define MAX_NUMBER 10000
 
 typedef struct Records{
     int data[3][MAX_NUMBER];
@@ -96,11 +96,11 @@ void write_data_to_file(char* suffix, Records* records){
     }
 
     // Write header row
-    fprintf(fp, "number,insert_comparisons,search_comparisons\n");
+    fprintf(fp, "index, number,insert_comparisons,search_comparisons\n");
 
     // Write data rows
     for (int i = 0; i < MAX_NUMBER; i++) {
-        fprintf(fp, "%d,%d,%d\n", records->data[0][i], records->data[1][i], records->data[2][i]);
+        fprintf(fp, "%d,%d,%d,%d\n", i, records->data[0][i], records->data[1][i], records->data[2][i]);
     }
 
     // Close the file
