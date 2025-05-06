@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "compress.h"
 #include "decompress.h"
 
 int main(int argc, char *argv[]) {
@@ -11,7 +12,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (strcmp(argv[1], "-c") == 0) {
-        //compress(argv[2]);
+        compress(argv[2]);
     } else if (strcmp(argv[1], "-d") == 0) {
         error = decompress(argv[2]);
     } else {
