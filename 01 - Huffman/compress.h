@@ -2,11 +2,12 @@
 #define COMPRESS_H
 
 typedef struct huffman_tree {
-    void *item;
-    int frequency;
-    struct huffman_tree *left;
-    struct huffman_tree *right;
+    unsigned char character;     // caractere da folha
+    unsigned long frequency;     // frequência do caractere
+    struct huffman_tree *left;   // filho esquerdo
+    struct huffman_tree *right;  // filho direito
 } huffman_tree;
+
 
 typedef struct {
     char bits[256];

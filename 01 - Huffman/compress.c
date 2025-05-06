@@ -59,9 +59,9 @@ huffman_tree* build_huffman_tree(int frequencies[256]) {
     for (int i = 0; i < 256; i++) {
         if (frequencies[i] > 0) {
             huffman_tree* node = malloc(sizeof(huffman_tree));
-            BYTE* item = malloc(sizeof(BYTE));
-            *item = (BYTE)i;
-            node->item = item;
+            BYTE* character = malloc(sizeof(BYTE));
+            *character = (BYTE)i;
+            node->character = *character;
             node->frequency = frequencies[i];
             node->left = node->right = NULL;
             insert_sorted(&list, node);
@@ -72,7 +72,6 @@ huffman_tree* build_huffman_tree(int frequencies[256]) {
         huffman_tree* left = remove_min(&list);
         huffman_tree* right = remove_min(&list);
         huffman_tree* parent = malloc(sizeof(huffman_tree));
-        parent->item = NULL;
         parent->frequency = left->frequency + right->frequency;
         parent->left = left;
         parent->right = right;
@@ -86,7 +85,7 @@ void generate_huffman_codes(huffman_tree* root, huffman_code table[256], char pa
     if (!root) return;
 
     if (is_leaf(root)) {
-        BYTE value = *((BYTE*)root->item);
+        BYTE value = root->character;
         path[depth] = '\0';
         strcpy(table[value].bits, path);
         table[value].length = depth;
@@ -101,23 +100,25 @@ void generate_huffman_codes(huffman_tree* root, huffman_code table[256], char pa
 }
 
 void serialize_huffman_tree(huffman_tree* root, BYTE* buffer, int* index) {
-    if (!root) return;
-
     if (is_leaf(root)) {
-        buffer[(*index)++] = '1';
-        buffer[(*index)++] = *((BYTE*)root->item);
+        buffer[(*index)++] = '\\'; // Escape para '*' ou '\'
+        if (root->character == '*' || root->character == '\\') {
+            buffer[(*index)++] = root->character;
+        } else {
+            buffer[(*index)++] = root->character;
+        }
     } else {
-        buffer[(*index)++] = '0';
+        buffer[(*index)++] = '*';
         serialize_huffman_tree(root->left, buffer, index);
         serialize_huffman_tree(root->right, buffer, index);
     }
 }
 
+
 void free_huffman_tree(huffman_tree* root) {
     if (!root) return;
     free_huffman_tree(root->left);
     free_huffman_tree(root->right);
-    if (root->item) free(root->item);
     free(root);
 }
 
@@ -133,21 +134,34 @@ int compress(const char* file_name) {
     generate_huffman_codes(root, table, path, 0);
 
     char out_name[256];
-    snprintf(out_name, sizeof(out_name), "%s%s", file_name, EXTENSION);
+    snprintf(out_name, sizeof(out_name), "%s.huff", file_name);
     FILE* in = fopen(file_name, "rb");
     FILE* out = fopen(out_name, "wb");
-    if (!in || !out) return 1;
+    if (!in || !out) {
+        perror("Erro ao abrir arquivos");
+        return 1;
+    }
 
-    BYTE tree_buffer[512];
+    // Serializa árvore
+    BYTE* tree_buffer = malloc(65536);  // alocação generosa
     int tree_size = 0;
     serialize_huffman_tree(root, tree_buffer, &tree_size);
-    BYTE tree_size_byte = (BYTE)tree_size;
-    fwrite(&tree_size_byte, 1, 1, out);
-    fwrite(tree_buffer, 1, tree_size, out);
 
+    if (tree_size > 0x1FFF) {  // 13 bits = 8191
+        fprintf(stderr, "Árvore muito grande para este formato (max 8191 bytes).\n");
+        free(tree_buffer);
+        fclose(in);
+        fclose(out);
+        return 1;
+    }
+
+    // Buffer para dados codificados
     BYTE byte = 0;
     int bit_index = 0;
     BYTE c;
+    BYTE* data_buffer = malloc(10000000);  // buffer grande
+    size_t data_index = 0;
+
     while (fread(&c, 1, 1, in)) {
         for (int i = 0; i < table[c].length; i++) {
             if (table[c].bits[i] == '1') {
@@ -155,19 +169,44 @@ int compress(const char* file_name) {
             }
             bit_index++;
             if (bit_index == 8) {
-                fwrite(&byte, 1, 1, out);
+                data_buffer[data_index++] = byte;
                 byte = 0;
                 bit_index = 0;
             }
         }
     }
 
+    // Se sobrarem bits
+    int trash_size = (bit_index == 0) ? 0 : 8 - bit_index;
     if (bit_index > 0) {
-        fwrite(&byte, 1, 1, out);
+        data_buffer[data_index++] = byte;
     }
 
+    // --------------------
+    // GRAVA CABEÇALHO FINAL
+    // --------------------
+
+    // Primeiros 3 bits: trash_size (bits de lixo à esquerda)
+    // Próximos 13 bits: tamanho da árvore
+    unsigned short header = (trash_size << 13) | tree_size;
+
+    BYTE header_byte1 = (header >> 8) & 0xFF;  // primeiros 8 bits
+    BYTE header_byte2 = header & 0xFF;         // últimos 8 bits
+
+    fwrite(&header_byte1, 1, 1, out);
+    fwrite(&header_byte2, 1, 1, out);
+
+    // Escreve árvore serializada
+    fwrite(tree_buffer, 1, tree_size, out);
+
+    // Escreve dados comprimidos
+    fwrite(data_buffer, 1, data_index, out);
+
+    // Finaliza
     fclose(in);
     fclose(out);
+    free(tree_buffer);
+    free(data_buffer);
     free_huffman_tree(root);
     return 0;
 }
