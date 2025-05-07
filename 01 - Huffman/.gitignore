@@ -1,0 +1,12 @@
+*.exe
+*.huff
+*.json
+*.txt.huff
+*.csv
+*.mp4
+*.bmp
+*.txt
+*.avi
+test/
+latex/
+html/

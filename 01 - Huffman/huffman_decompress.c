@@ -1,24 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include  "decompress.h"
-
-#ifdef DEBUG
-void print_byte(unsigned char byte) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (byte >> i) & 1);
-	}
-	printf(" ");
-}
-
-void print2bytes(unsigned short byte) {
-	for (int i = 15; i >= 0; i--) {
-		printf("%d", (byte >> i) & 1);
-		if(i==7) printf(" ");
-	}
-	printf(" ");
-}
-#endif
+#include "huffman_common.h"
+#include  "huffman_decompress.h"
 
 char* decompressed_file_name(const char* compressed_file_name) {
     size_t len = strlen(compressed_file_name);
@@ -41,9 +25,9 @@ char* decompressed_file_name(const char* compressed_file_name) {
     return strdup(compressed_file_name);
 }
 
-reconstructed_huffman_tree* reconstruct_huffman_tree(unsigned char* tree_array, int* index){
+void* reconstruct_huffman_tree(unsigned char* tree_array, int* index){
 	
-	reconstructed_huffman_tree* new_tree = (reconstructed_huffman_tree*) malloc(sizeof(reconstructed_huffman_tree));
+	huffman_node* new_tree = malloc(sizeof(huffman_node));
 	if(new_tree==NULL){
 		printf("Erro ao reconstruir arvore de huffman. Alocacao mal-sucedida");
 		return NULL;
@@ -64,6 +48,7 @@ reconstructed_huffman_tree* reconstruct_huffman_tree(unsigned char* tree_array, 
 		(*index)++;
 		new_tree->left = NULL;
 		new_tree->right= NULL;
+		new_tree->next = NULL;
 		return new_tree;
 	}
 	// é nó interno?
@@ -79,6 +64,7 @@ reconstructed_huffman_tree* reconstruct_huffman_tree(unsigned char* tree_array, 
 		(*index)++;
 		new_tree->left = reconstruct_huffman_tree(tree_array, index);
 		new_tree->right = reconstruct_huffman_tree(tree_array, index);
+		new_tree->next = NULL;
 		return new_tree;
 	}
 	// é folha!
@@ -94,17 +80,10 @@ reconstructed_huffman_tree* reconstruct_huffman_tree(unsigned char* tree_array, 
 		(*index)++;
 		new_tree->left = NULL;
 		new_tree->right = NULL;
+		new_tree->next = NULL;
 		return new_tree;
 	}
 
-}
-
-void free_reconstructed_huffman_tree(reconstructed_huffman_tree* root) {
-    if (root == NULL) return;
-    free_reconstructed_huffman_tree(root->left);
-    free_reconstructed_huffman_tree(root->right);
-    free(root->item); // libera o item (char*)
-    free(root);       // libera o nó
 }
 
 int decompress(const char* file_name){
@@ -115,11 +94,14 @@ int decompress(const char* file_name){
 	unsigned short tree_size; //Tamanho da Árvore
 	unsigned char TRASH_SIZE_MASK = 0b11100000; //Máscara utilizada para extrair 3 bits mais significativos
 	unsigned short TREE_SIZE_MASK = 0b0001111111111111;//Máscara utilizada para extrair 13 bits menos significativos
+
 	FILE* file = fopen(file_name, "rb");//Arquivo a ser descompactado
+	
 	if(file == NULL){
 		printf("Erro ao abrir o arquivo.");
 		return 1;
 	}
+
 	// LEITURA EM PASSOS
 	fread(&byte_buffer1, sizeof(unsigned char), 1, file);
 	trash_size = byte_buffer1 & TRASH_SIZE_MASK;
@@ -171,8 +153,8 @@ int decompress(const char* file_name){
 
 	// Iniciar leitura da árvore no cabeçalho
 	fseek(file, 2, SEEK_SET);
-	unsigned char* tree = malloc(tree_size * sizeof(unsigned char));
-	if(tree == NULL){
+	unsigned char* tree_arr = malloc(tree_size * sizeof(unsigned char));
+	if(tree_arr == NULL){
 		printf("Erro ao alocar memória para a árvore reconstruída.");
 		fclose(file);
 		return 1;
@@ -186,7 +168,7 @@ int decompress(const char* file_name){
 
 	for(int i = 0; i<tree_size; i++) {
 		fread(&byte_buffer1, sizeof(unsigned char), 1, file);
-		tree[i] = byte_buffer1;
+		tree_arr[i] = byte_buffer1;
 	}
 	
 	#ifdef DEBUG
@@ -198,9 +180,10 @@ int decompress(const char* file_name){
 	printf("\nReconstructing Huffman Tree..");
 	#endif
 	
+	// reconstruir na memória árvore serializada no cabeçalho
 	int index = 0;// índice usado na reconstrução da arvore h. passível de exclusão ou refatoração
-	reconstructed_huffman_tree* rht = reconstruct_huffman_tree(tree, &index);
-	free(tree);
+	void* r_huffman_tree = reconstruct_huffman_tree(tree_arr, &index);
+	free(tree_arr);
 	
 	#ifdef DEBUG
 	printf("\nReconstruction Successful.\n");
@@ -211,7 +194,7 @@ int decompress(const char* file_name){
 	fseek(file, 0, SEEK_END); // Vai para o fim
 	long file_size = ftell(file); // Pega a posição atual -> tamanho
 	compress_data_start = 2 + tree_size;
-	int total_of_bits = (file_size - compress_data_start) * 8; //Variável para debug.
+	int total_of_bits = (file_size - compress_data_start) * 8;
 	int total_of_valid_bits = total_of_bits - trash_size;
 	
 	#ifdef DEBUG
@@ -222,13 +205,15 @@ int decompress(const char* file_name){
 	printf("Total de bits = %d. Total de bits validos = %d\n\n\n", total_of_bits, total_of_valid_bits);
 	#endif
 	
-	//Criar o arquivo descomprimido. Primeiro o nome sem o .huff, se possível.
+	//Criar o nome do arquivo descomprimido. Primeiro o nome sem o .huff, se possível.
 	char* output_name = decompressed_file_name(file_name);
 	
 	#ifdef DEBUG
 	printf("Nome do arquivo descompactado: %s\n", output_name);
 	#endif
 
+
+	// criar arquivo descompactado e inicia sua escrita
 	FILE* output_file = fopen(output_name, "wb");
 	free(output_name);
 	if(output_file == NULL){
@@ -241,7 +226,7 @@ int decompress(const char* file_name){
 	int bit_index = 0; //Índice para leitura de um Byte
 	unsigned char input_byte;
 	unsigned char output_byte;
-	reconstructed_huffman_tree* rht_ptr = rht;	//Lembrando que rht é a raiz
+	huffman_node* r_huffman_tree_ptr = (huffman_node*) r_huffman_tree;	//Lembrando que r_huffman_tree é a raiz
 	
 	//leia o primeiro byte
 	fseek(file, (compress_data_start), SEEK_SET); // ir para o início dos dados comprimidos
@@ -260,24 +245,36 @@ int decompress(const char* file_name){
 
 		// Percorra a árvore
 		if(bit == 0){
-			rht_ptr = rht_ptr->left;
+			r_huffman_tree_ptr = r_huffman_tree_ptr->left;
 		} else {
-			rht_ptr = rht_ptr->right;
+			r_huffman_tree_ptr = r_huffman_tree_ptr->right;
 		}
 
 		// Se uma folha foi alcançada, escreva o conteúdo dessa folha no arquivo de destino
-		if((rht_ptr->left == NULL) && (rht_ptr->right == NULL)){
-			output_byte = *(unsigned char*)rht_ptr->item;
+		if((r_huffman_tree_ptr->left == NULL) && (r_huffman_tree_ptr->right == NULL)){
+			output_byte = *(unsigned char*)r_huffman_tree_ptr->item;
 			fwrite(&output_byte, sizeof(unsigned char), 1, output_file); 
-			rht_ptr = rht;
+			r_huffman_tree_ptr = r_huffman_tree;
 		}
 	}
 
 	/* 
-    PRÓXIMOS PASSOS 
-	>> tratar possíveis erros na leitura do arquivo compactados ::>> fread(&x, sizeof(unsigned char), 1, file);
+    faltou tratar caso da leitura na linha 243 é um fracasso.
     */
-	free_reconstructed_huffman_tree(rht);
+
+	long tamanho_comprimido = get_file_size(file);
+    long tamanho_descomprimido = get_file_size(output_file);
+
+    printf("Relatorio de Descompressao:\n");
+    printf("Arquivo de entrada (comprimido): %s\n", file_name);
+    printf("Arquivo de saida (descomprimido): %s\n", output_name);
+    printf("Tamanho do arquivo comprimido: %ld bytes\n", tamanho_comprimido);
+    printf("Tamanho do arquivo descomprimido: %ld bytes\n", tamanho_descomprimido);
+
+	double taxa = 100.0 * (1.0 - ((double)tamanho_comprimido / tamanho_descomprimido));
+	printf("Eficiencia da compressao: %.2f%%\n", taxa);
+
+	free_nodes((void*)r_huffman_tree, 1);
 	fclose(output_file);
 	fclose(file);
     return 0;
