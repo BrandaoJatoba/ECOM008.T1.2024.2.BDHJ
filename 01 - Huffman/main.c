@@ -1,22 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "huffman_common.h"
-#include "huffman_compress.h"
-#include "huffman_decompress.h"
 
-/**
- * @brief Função principal do programa de compressão e descompressão Huffman.
- * 
- * Uso: `programa -c|-d <nome_arquivo>`
- * 
- * - `-c`: Comprime o arquivo especificado.
- * - `-d`: Descomprime o arquivo especificado.
- * 
- * @param argc Número de argumentos da linha de comando.
- * @param argv Vetor de argumentos da linha de comando.
- * @return 0 se executado com sucesso, outro valor se ocorrer erro.
- */
+
 int main(int argc, char *argv[]) {
 	int error = 0;
 	if (argc != 3) {
