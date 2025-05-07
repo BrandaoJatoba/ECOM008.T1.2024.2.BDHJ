@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "huffman_common.h"
+#include "huffman_compress.h"
+#include "huffman_decompress.h"
 
 int main(int argc, char *argv[]) {
 	int error = 0;
