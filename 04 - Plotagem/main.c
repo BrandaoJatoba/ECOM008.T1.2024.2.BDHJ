@@ -8,7 +8,7 @@
 #define MAX_NUMBER 10000
 
 typedef struct Records{
-    int data[3][MAX_NUMBER];
+    int data[3][MAX_NUMBER]; // número, comp. add, comp. search
 }Records;
 
 Records* fill_record_avl(avl_tree* root, int* r_numbers){
@@ -21,14 +21,17 @@ Records* fill_record_avl(avl_tree* root, int* r_numbers){
         return NULL;
     }
     
-    for(int j = 0; j < MAX_NUMBER; j++){
-        
+    for(int j = 0; j < MAX_NUMBER; j++){        
         AVL_insert_comparisons = 0;
-        AVL_search_comparisons = 0;
         root = avl_add(root, r_numbers[j], &AVL_insert_comparisons);
-        avl_search(root, r_numbers[j], &AVL_search_comparisons);
         records->data[0][j] = r_numbers[j];
         records->data[1][j] = AVL_insert_comparisons;
+    }
+    
+    for(int j = 0; j < MAX_NUMBER; j++){
+        
+        AVL_search_comparisons = 0;
+        avl_search(root, r_numbers[j], &AVL_search_comparisons);
         records->data[2][j] = AVL_search_comparisons;
     }
 
@@ -47,11 +50,14 @@ Records* fill_record_bst(binary_tree* root, int* r_numbers){
     
     for(int j = 0; j < MAX_NUMBER; j++){        
         BST_insert_comparisons = 0;
-        BST_search_comparisons = 0;
         root = add(root, r_numbers[j], &BST_insert_comparisons);
-        search(root, r_numbers[j], &BST_search_comparisons);
         records->data[0][j] = r_numbers[j];
         records->data[1][j] = BST_insert_comparisons;
+    }
+    
+    for(int j = 0; j < MAX_NUMBER; j++){ 
+        BST_search_comparisons = 0;
+        search(root, r_numbers[j], &BST_search_comparisons);
         records->data[2][j] = BST_search_comparisons;
     }
 
@@ -104,9 +110,9 @@ void write_data_to_file(char* suffix, Records* records){
     }
 
     // Close the file
+    printf("CSV file '%s' written successfully.\n", filename);
     fclose(fp);
     free(filename);
-    printf("CSV file '%s' written successfully.\n", filename);
 }
 
 int* generate_linear_numbers(int max_range){
