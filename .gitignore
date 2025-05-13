@@ -10,3 +10,4 @@
 .Rhistory
 *.Rproj
 *.csv
+.Rproj.user

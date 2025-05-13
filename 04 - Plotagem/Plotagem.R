@@ -2,7 +2,7 @@
 library(ggplot2)
 library(dplyr)
 
-# Importação
+# Importação - colocar nome do arquivo
 avl <- read.csv("2025-05-13 12.47.26 Plotagem AVL.csv")
 bst <- read.csv("2025-05-13 12.47.26 Plotagem BST.csv")
 
