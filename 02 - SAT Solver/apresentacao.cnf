@@ -1,9 +1,9 @@
 c apresentacao.cnf
 c
-c SAT OR UNSAT
+c MODELO VAZIO CNF
 c
-p cnf x y 
-a b 0
-b a 0
-b 0
--a 0
+p cnf 
+ 0
+ 0
+ 0
+ 0
