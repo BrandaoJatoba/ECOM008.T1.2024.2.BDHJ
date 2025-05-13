@@ -1,0 +1,9 @@
+c apresentacao.cnf
+c
+c SAT OR UNSAT
+c
+p cnf x y 
+a b 0
+b a 0
+b 0
+-a 0
