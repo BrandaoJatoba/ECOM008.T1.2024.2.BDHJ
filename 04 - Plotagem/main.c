@@ -24,11 +24,17 @@ Records* fill_record_avl(avl_tree* root, int* r_numbers){
     for(int j = 0; j < MAX_NUMBER; j++){
         
         AVL_insert_comparisons = 0;
-        AVL_search_comparisons = 0;
         root = avl_add(root, r_numbers[j], &AVL_insert_comparisons);
         avl_search(root, r_numbers[j], &AVL_search_comparisons);
         records->data[0][j] = r_numbers[j];
         records->data[1][j] = AVL_insert_comparisons;
+    }
+    
+    for(int j = 0; j < MAX_NUMBER; j++){
+        
+        AVL_search_comparisons = 0;
+        root = avl_add(root, r_numbers[j], &AVL_insert_comparisons);
+        avl_search(root, r_numbers[j], &AVL_search_comparisons);
         records->data[2][j] = AVL_search_comparisons;
     }
 
@@ -47,11 +53,16 @@ Records* fill_record_bst(binary_tree* root, int* r_numbers){
     
     for(int j = 0; j < MAX_NUMBER; j++){        
         BST_insert_comparisons = 0;
-        BST_search_comparisons = 0;
         root = add(root, r_numbers[j], &BST_insert_comparisons);
         search(root, r_numbers[j], &BST_search_comparisons);
         records->data[0][j] = r_numbers[j];
         records->data[1][j] = BST_insert_comparisons;
+    }
+    
+    for(int j = 0; j < MAX_NUMBER; j++){ 
+        BST_search_comparisons = 0;
+        root = add(root, r_numbers[j], &BST_insert_comparisons);
+        search(root, r_numbers[j], &BST_search_comparisons);
         records->data[2][j] = BST_search_comparisons;
     }
 

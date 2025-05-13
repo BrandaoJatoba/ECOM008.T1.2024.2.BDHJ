@@ -6,3 +6,7 @@
 *.pdf
 *.bmp
 *.mp4
+*.Rproj.user
+.Rhistory
+*.Rproj
+*.csv

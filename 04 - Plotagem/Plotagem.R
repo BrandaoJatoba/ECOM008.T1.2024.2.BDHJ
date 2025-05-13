@@ -3,8 +3,8 @@ library(ggplot2)
 library(dplyr)
 
 # Importação
-avl <- read.csv("2025-05-01 19.35.40 Plotagem AVL.csv")
-bst <- read.csv("2025-05-01 19.35.40 Plotagem BST.csv")
+avl <- read.csv("2025-05-13 12.47.26 Plotagem AVL.csv")
+bst <- read.csv("2025-05-13 12.47.26 Plotagem BST.csv")
 
 # Adiciona identificadores
 avl$tipo <- "AVL"
