@@ -1,0 +1,23 @@
+var NAVTREEINDEX0 =
+{
+"annotated.html":[1,0],
+"classes.html":[1,1],
+"files.html":[2,0],
+"functions.html":[1,2,0],
+"functions_vars.html":[1,2,1],
+"globals.html":[2,1,0],
+"globals_func.html":[2,1,1],
+"index.html":[],
+"md__r_e_a_d_m_e.html":[0],
+"pages.html":[],
+"sat__solver_8c.html":[2,0,0],
+"sat__solver_8c.html#a0ddf1224851353fc92bfbff6f499fa97":[2,0,0,4],
+"sat__solver_8c.html#a38f712574ba96c07ed24c9e54d81a381":[2,0,0,5],
+"sat__solver_8c.html#a43447060cacf0f92ff16a4a573b70870":[2,0,0,1],
+"sat__solver_8c.html#aa50e378ba5508a59c4b11119edfaea89":[2,0,0,3],
+"sat__solver_8c.html#ae6ff5cb08cd86efa05f6e8a1a9342c9c":[2,0,0,2],
+"struct_formula.html":[1,0,0],
+"struct_formula.html#a360718794409f6cf78ba5bf9dd66033b":[1,0,0,0],
+"struct_formula.html#a4576488c2ac9a4102e329fd73f1d28a9":[1,0,0,1],
+"struct_formula.html#a952c26c400b7c330fac62672ea073eea":[1,0,0,2]
+};
