@@ -135,24 +135,28 @@
   * @return true se a fórmula for satisfeita por alguma interpretação, false caso contrário.
   */
  bool sat(Formula *F, int *I, int indice) {
-     if (avaliacao_F(F, I))
-         return true;
-     if (avaliacao_negacao_F(F, I))
-         return false;
- 
-     if (I[indice] == -1) {
-         I[indice] = 1;
-         if (sat(F, I, indice + 1))
-             return true;
-         I[indice] = 0;
-         if (sat(F, I, indice + 1))
-             return true;
-         I[indice] = -1;
-         return false;
-     }
- 
-     return false;
+    if (indice == F->num_vars) {
+        // Todas as variáveis foram atribuídas
+        return avaliacao_F(F, I);
+    } 
+
+    // Tenta com valor 1
+    I[indice] = 1;
+    if (!avaliacao_negacao_F(F, I)) {
+        if (sat(F, I, indice + 1)) return true;
+    }
+
+    // Tenta com valor 0
+    I[indice] = 0; 
+    if (!avaliacao_negacao_F(F, I)) {
+        if (sat(F, I, indice + 1)) return true;
+    }
+
+    // Backtrack
+    I[indice] = -1;
+    return false;
  }
+
  
  /**
   * @brief Função principal do programa.
@@ -177,12 +181,12 @@
      }
  
      if (sat(formula, interpretacao_parcial, 0)) {
-         printf("SAT!\nAtribuições:\n");
+         printf("SATISFATIVEL!\nAtribuições:\n");
          for (int i = 0; i < formula->num_vars; i++) {
              printf("%d = %d\n", i + 1, interpretacao_parcial[i]);
          }
      } else {
-         printf("UNSAT!\n");
+         printf("INSATISFATIVEL!\n"); 
      }
  
      // Libera memória
